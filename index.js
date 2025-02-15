@@ -52,7 +52,10 @@
         this.invertTimer = 0;
         this.resizeTimerId_ = null;
 
+        this.game_started = false
+
         this.playCount = 0;
+        this.introCount = 0;
 
         // Sound FX.
         this.audioBuffer = null;
@@ -73,7 +76,7 @@
     }
     window['Runner'] = Runner;
 
-
+    
     /**
      * Default game width.
      * @const
@@ -152,8 +155,14 @@
         INVERTED: 'inverted',
         SNACKBAR: 'snackbar',
         SNACKBAR_SHOW: 'snackbar-show',
-        TOUCH_CONTROLLER: 'controller'
+        TOUCH_CONTROLLER: 'controller',
+        BOTTOM_CONTAINER: 'bottom-container',
+        BACKGROUND_IMAGE: 'background-image'
     };
+
+    //TODO: SET THE GROUND BACKGROUND IMAGE
+    Runner.img_link = "./test-assets/ground.jpg"
+
 
 
     /**
@@ -382,6 +391,34 @@
             this.tRex = new Trex(this.canvas, this.spriteDef.TREX);
 
             this.outerContainerEl.appendChild(this.containerEl);
+            //TODO: bottom container
+            this.containerBottom = document.createElement('div');
+            this.outerContainerEl.appendChild(this.containerBottom);
+            this.containerBottom.className = Runner.classes.BOTTOM_CONTAINER;
+
+            //TODO: BOTTOM CONTAINER IMAGE
+            const backgroundImage = document.createElement('img');
+            backgroundImage.className = Runner.classes.BACKGROUND_IMAGE;
+            backgroundImage.src = Runner.img_link; 
+            this.containerBottom.appendChild(backgroundImage);
+
+
+
+
+
+            //TODO: 
+            //this.setArcadeModeContainerScale();
+            this.playIntro()
+            this.adjustDimensions()
+            this.tRex.draw(0, 0);
+
+
+
+            //this.update();
+
+            //this.time = getTimeStamp();
+            //this.update();
+
 
             if (IS_MOBILE) {
                 this.createTouchController();
@@ -465,9 +502,15 @@
          * Canvas container width expands out to the full width.
          */
         playIntro: function () {
-            if (!this.activated && !this.crashed) {
+            if (!this.activated && !this.crashed){
+
                 this.playingIntro = true;
-                this.tRex.playingIntro = true;
+
+                if (this.introCount > 0) {
+                    this.tRex.playingIntro = true;
+
+                }
+
 
                 // CSS animation definition.
                 var keyframes = '@-webkit-keyframes intro { ' +
@@ -484,17 +527,21 @@
                 this.containerEl.addEventListener(Runner.events.ANIM_END,
                     this.startGame.bind(this));
 
-                this.containerEl.style.webkitAnimation = 'intro .4s ease-out 1 both';
+                this.containerEl.style.webkitAnimation = 'intro ease-out 1 both';
                 this.containerEl.style.width = this.dimensions.WIDTH + 'px';
 
                 // if (this.touchController) {
                 //     this.outerContainerEl.appendChild(this.touchController);
                 // }
+            if (!this.activated && !this.crashed) {
                 this.playing = true;
                 this.activated = true;
+            }
+                
             } else if (this.crashed) {
                 this.restart();
             }
+            this.introCount += 1
         },
 
 
@@ -548,6 +595,8 @@
                 // First jump triggers the intro.
                 if (this.tRex.jumpCount == 1 && !this.playingIntro) {
                     this.playIntro();
+                    this.introCount++;
+                    this.game_started = true;
                 }
 
                 // The horizon doesn't move until the intro is over.
@@ -684,18 +733,30 @@
                         this.loadSounds();
                         this.playing = true;
                         this.update();
+                        
                         if (window.errorPageController) {
                             errorPageController.trackEasterEgg();
                         }
                     }
                     //  Play sound effect and jump on starting the game for the first time.
-                    if (!this.tRex.jumping && !this.tRex.ducking) {
+                    if (!this.tRex.jumping && !this.tRex.ducking ) {
                         this.playSound(this.soundFx.BUTTON_PRESS);
-                        this.tRex.startJump(this.currentSpeed);
+
+                        //TODO: 'startJump"
+                        if (!this.game_started ) {
+                            this.tRex.reset()
+                            this.tRex.jumpCount++;
+                            this.game_started = true
+
+                        } else {
+                            this.tRex.startJump(this.currentSpeed);
+
+                        }
+
                     }
                 }
 
-                if (this.crashed && e.type == Runner.events.TOUCHSTART &&
+                if (this. crashed && e.type == Runner.events.TOUCHSTART &&
                     e.currentTarget == this.containerEl) {
                     this.restart();
                 }
@@ -721,10 +782,12 @@
         onKeyUp: function (e) {
             var keyCode = String(e.keyCode);
             var isjumpKey = Runner.keycodes.JUMP[keyCode] ||
+                //TODO: e.type == Runner.events.TOUCHEND ||
                 e.type == Runner.events.TOUCHEND ||
                 e.type == Runner.events.MOUSEDOWN;
 
             if (this.isRunning() && isjumpKey) {
+                //TODO:
                 this.tRex.endJump();
             } else if (Runner.keycodes.DUCK[keyCode]) {
                 this.tRex.speedDrop = false;
@@ -734,8 +797,9 @@
                 var deltaTime = getTimeStamp() - this.time;
 
                 if (Runner.keycodes.RESTART[keyCode] || this.isLeftClickOnCanvas(e) ||
-                    (deltaTime >= this.config.GAMEOVER_CLEAR_TIME &&
-                        Runner.keycodes.JUMP[keyCode])) {
+                //TODO: changed  (deltaTime >= this.config.GAMEOVER_CLEAR_TIME && Runner.keycodes.JUMP[keyCode]))
+                    (deltaTime >= 10 &&
+                        isjumpKey)) {
                     this.restart();
                 }
             } else if (this.paused && isjumpKey) {
@@ -818,6 +882,7 @@
                 this.playing = true;
                 this.paused = false;
                 this.tRex.update(0, Trex.status.RUNNING);
+                this.tRex.reset();
                 this.time = getTimeStamp();
                 this.update();
             }
@@ -870,6 +935,13 @@
             const cssScale = scale;
             this.containerEl.style.transform =
                 'scale(' + cssScale + ') translateY(' + translateY + 'px)';
+
+            const bottomContainer = document.querySelector('.bottom-container');
+            const effectiveRunnerHeight = scaledCanvasHeight + translateY;
+            bottomContainer.style.top = `${effectiveRunnerHeight}px`;
+
+            const interstitialWrapper = document.querySelector('.interstitial-wrapper');
+            interstitialWrapper.style.height = `${windowHeight}px`;
         },
         
         /**
@@ -1786,14 +1858,15 @@
          * @param {number} speed
          */
         startJump: function (speed) {
-            if (!this.jumping) {
+            if (!this.jumping ) {
                 this.update(0, Trex.status.JUMPING);
                 // Tweak the jump velocity based on the speed.
                 this.jumpVelocity = this.config.INIITAL_JUMP_VELOCITY - (speed / 10);
                 this.jumping = true;
                 this.reachedMinHeight = false;
                 this.speedDrop = false;
-            }
+                this.introCount++;
+            } //else if (this.introCount>2)
         },
 
         /**
@@ -1869,6 +1942,7 @@
          * Reset the t-rex to running at start of game.
          */
         reset: function () {
+            //TODO:
             this.yPos = this.groundYPos;
             this.jumpVelocity = 0;
             this.jumping = false;
@@ -2746,7 +2820,9 @@
 
 
 function onDocumentLoad() {
+    
     new Runner('.interstitial-wrapper');
 }
 
 document.addEventListener('DOMContentLoaded', onDocumentLoad);
+
