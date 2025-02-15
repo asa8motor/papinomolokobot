@@ -138,7 +138,9 @@
      */
     Runner.defaultDimensions = {
         WIDTH: DEFAULT_WIDTH,
-        HEIGHT: 150
+        //TODO2
+        HEIGHT: 900
+
     };
 
 
@@ -171,28 +173,28 @@
      */
     Runner.spriteDefinition = {
         LDPI: {
-            CACTUS_LARGE: { x: 332, y: 2 },
-            CACTUS_SMALL: { x: 228, y: 2 },
-            CLOUD: { x: 86, y: 2 },
-            HORIZON: { x: 2, y: 54 },
-            MOON: { x: 484, y: 2 },
-            PTERODACTYL: { x: 134, y: 2 },
-            RESTART: { x: 2, y: 2 },
-            TEXT_SPRITE: { x: 655, y: 2 },
-            TREX: { x: 848, y: 2 },
-            STAR: { x: 645, y: 2 }
+            CACTUS_LARGE: { x: 332, y: 6 },
+            CACTUS_SMALL: { x: 228, y: 6 },
+            CLOUD: { x: 86, y: 6 },
+            HORIZON: { x: 2, y: 58 },
+            MOON: { x: 484, y: 6 },
+            PTERODACTYL: { x: 134, y: 6 },
+            RESTART: { x: 2, y: 6 },
+            TEXT_SPRITE: { x: 655, y: 6 },
+            TREX: { x: 848, y: 0 },
+            STAR: { x: 645, y: 6 }
         },
         HDPI: {
-            CACTUS_LARGE: { x: 652, y: 2 },
-            CACTUS_SMALL: { x: 446, y: 2 },
-            CLOUD: { x: 166, y: 2 },
-            HORIZON: { x: 2, y: 104 },
-            MOON: { x: 954, y: 2 },
-            PTERODACTYL: { x: 260, y: 2 },
-            RESTART: { x: 2, y: 2 },
-            TEXT_SPRITE: { x: 1294, y: 2 },
-            TREX: { x: 1678, y: 2 },
-            STAR: { x: 1276, y: 2 }
+            CACTUS_LARGE: { x: 652, y: 6 },
+            CACTUS_SMALL: { x: 446, y: 6 },
+            CLOUD: { x: 166, y: 6 },
+            HORIZON: { x: 2, y: 108 },
+            MOON: { x: 954, y: 6 },
+            PTERODACTYL: { x: 260, y: 6 },
+            RESTART: { x: 2, y: 6 },
+            TEXT_SPRITE: { x: 1294, y: 6 },
+            TREX: { x: 1678, y: 0 },
+            STAR: { x: 1276, y: 6 }
         }
     };
 
@@ -397,11 +399,12 @@
             this.containerBottom.className = Runner.classes.BOTTOM_CONTAINER;
 
             //TODO: BOTTOM CONTAINER IMAGE
+            /*TODO2
             const backgroundImage = document.createElement('img');
             backgroundImage.className = Runner.classes.BACKGROUND_IMAGE;
             backgroundImage.src = Runner.img_link; 
             this.containerBottom.appendChild(backgroundImage);
-
+            */
 
 
 
@@ -1164,14 +1167,16 @@
             var textSourceHeight = dimensions.TEXT_HEIGHT;
 
             var textTargetX = Math.round(centerX - (dimensions.TEXT_WIDTH / 2));
-            var textTargetY = Math.round((this.canvasDimensions.HEIGHT - 25) / 3);
+            //TODO2
+            var textTargetY = Math.round((this.canvasDimensions.HEIGHT - (900 - 150) - 25) / 3);
             var textTargetWidth = dimensions.TEXT_WIDTH;
             var textTargetHeight = dimensions.TEXT_HEIGHT;
 
             var restartSourceWidth = dimensions.RESTART_WIDTH;
             var restartSourceHeight = dimensions.RESTART_HEIGHT;
             var restartTargetX = centerX - (dimensions.RESTART_WIDTH / 2);
-            var restartTargetY = this.canvasDimensions.HEIGHT / 2;
+            //TODO2
+            var restartTargetY = (this.canvasDimensions.HEIGHT - (900 - 150)) / 2;
 
             if (IS_HIDPI) {
                 textSourceY *= 2;
@@ -1216,8 +1221,9 @@
         // Adjustments are made to the bounding box as there is a 1 pixel white
         // border around the t-rex and obstacles.
         var tRexBox = new CollisionBox(
-            tRex.xPos + 1,
-            tRex.yPos + 1,
+            tRex.xPos + 1 ,
+            //TODO2
+            tRex.yPos + 1 - (900 - 150),
             tRex.config.WIDTH - 2,
             tRex.config.HEIGHT - 2);
 
@@ -1634,7 +1640,7 @@
     Trex.config = {
         DROP_VELOCITY: -5,
         GRAVITY: 0.6,
-        HEIGHT: 47,
+        HEIGHT: 48,
         HEIGHT_DUCK: 25,
         INIITAL_JUMP_VELOCITY: -10,
         INTRO_DURATION: 1500,
@@ -1810,9 +1816,9 @@
 
             // Ducking.
             if (this.ducking && this.status != Trex.status.CRASHED) {
-                this.canvasCtx.drawImage(Runner.imageSprite, sourceX, sourceY,
+                this.canvasCtx.drawImage(Runner.imageSprite, sourceX, sourceY ,
                     sourceWidth, sourceHeight,
-                    this.xPos, this.yPos,
+                    this.xPos, this.yPos - (900 - 150),
                     this.config.WIDTH_DUCK, this.config.HEIGHT);
             } else {
                 // Crashed whilst ducking. Trex is standing up so needs adjustment.
@@ -1822,7 +1828,8 @@
                 // Standing / running
                 this.canvasCtx.drawImage(Runner.imageSprite, sourceX, sourceY,
                     sourceWidth, sourceHeight,
-                    this.xPos, this.yPos,
+                    //TODO2
+                    this.xPos, this.yPos - (900 - 150),
                     this.config.WIDTH, this.config.HEIGHT);
             }
         },
@@ -1942,7 +1949,7 @@
          * Reset the t-rex to running at start of game.
          */
         reset: function () {
-            //TODO:
+            //TODO2:
             this.yPos = this.groundYPos;
             this.jumpVelocity = 0;
             this.jumping = false;
@@ -2500,8 +2507,10 @@
      */
     HorizonLine.dimensions = {
         WIDTH: 600,
-        HEIGHT: 12,
+        //TODO2
+        HEIGHT: 900,
         YPOS: 127
+        //YPOS: 587
     };
 
 
